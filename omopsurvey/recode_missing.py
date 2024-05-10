@@ -2,7 +2,8 @@ import pandas as pd
 
 
 def recode_missing_values(input_data):
-    missing_values = [-99, -98, -97, -96, -95, -94, -93, -92, -91, -90]
+    missing_values = [-999, -998, -997, -996, -995, -994, -993, -992, -991, -990,
+                      -989, -988, -987, -986, -985, -984, -983, -982, -981, -980]
 
     if isinstance(input_data, str):
         if input_data.endswith('.csv') or input_data.endswith('.txt'):

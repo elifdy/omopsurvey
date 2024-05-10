@@ -75,12 +75,16 @@ def print_codebook(source):
 
 def create_formatted_codebook(dataframe):
 
+    dataframe['question'] = dataframe['question'].str.strip().str.lower()
+    dataframe['answer'] = dataframe['answer'].str.strip().str.lower()
+
+    dataframe = dataframe.drop_duplicates(subset=['question_concept_id', 'question', 'answer_concept_id'])
+
     grouped = dataframe.groupby(['question_concept_id', 'question'], sort=False)
 
     formatted_data = []
 
     for (question_concept_id, question), group in grouped:
-
         is_first = True
 
         for idx, row in group.iterrows():
@@ -92,7 +96,6 @@ def create_formatted_codebook(dataframe):
                     'answer_concept_id recoded as answer_numeric': row['answer_numeric'],
                     'answer': row['answer'],
                     'answer recoded as answer_text': row['answer_text']
-
                 })
                 is_first = False
             else:
@@ -103,10 +106,8 @@ def create_formatted_codebook(dataframe):
                     'answer_concept_id recoded as answer_numeric': row['answer_numeric'],
                     'answer': row['answer'],
                     'answer recoded as answer_text': row['answer_text']
-
                 })
 
     formatted_codebook_df = pd.DataFrame(formatted_data)
 
     return formatted_codebook_df.to_html(index=False, escape=False)
-

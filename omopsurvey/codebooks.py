@@ -63,7 +63,6 @@ def print_codebook(source):
 
         codebook_df = create_codebook(data)
 
-
         from tabulate import tabulate
         print(tabulate(codebook_df, headers='keys', tablefmt='psql', showindex=False))
     except ImportError:

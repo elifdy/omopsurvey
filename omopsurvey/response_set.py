@@ -11,7 +11,7 @@ def load_survey_data(filename='survey_key.csv'):
     return pd.read_csv(file_path)
 
 
-def map_responses(input_data):
+def mapitems(input_data):
     special_cases = {
         903087: (-999, "Don't Know"),
         903096: (-998, "Skip"),
@@ -66,28 +66,51 @@ def map_responses(input_data):
         if isinstance(input_data.at[idx, 'answer_text'], (int, float)):
             input_data.at[idx, 'answer_text'] = str(input_data.at[idx, 'answer_text'])
 
-        # if isinstance(input_data.at[idx, 'answer_text'], (int, float)):
-        #     input_data.at[idx, 'answer_text'] = str(input_data.at[idx, 'answer_text'])
-        # elif isinstance(input_data.at[idx, 'answer_text'], str) and input_data.at[idx, 'answer_text'].isdigit():
-        #     pass
-
     return input_data
 
 
-def create_dummies(user_data):
+def createdummies(user_data):
     question_key = load_survey_data()
-
-    data = user_data.merge(question_key[['question_concept_id', 'select_all']], on='question_concept_id', how='left')
 
     select_all_questions = question_key[question_key['select_all'] == 1]['question_concept_id'].unique()
 
-    select_all_data = data[data['question_concept_id'].isin(select_all_questions)]
+    new_rows = []
 
     for question_id in select_all_questions:
-        current_question_data = select_all_data[select_all_data['question_concept_id'] == question_id]
-        dummies = pd.get_dummies(current_question_data['answer_text']).add_prefix(f'{question_id}_')
-        data = data.join(dummies, how='left', rsuffix='_dummy')
-    data.drop(select_all_data.index, inplace=True)
-    data.drop(columns=['select_all'], inplace=True)
+        select_all_data = user_data[user_data['question_concept_id'] == question_id]
+        for index, row in select_all_data.iterrows():
+            new_row = row.copy()
+            new_row[
+                'question_concept_id'] = f"{question_id}_{row['answer_concept_id']}"
+            new_rows.append(new_row)
+
+    new_rows_df = pd.DataFrame(new_rows)
+    filtered_data = user_data[~user_data['question_concept_id'].isin(select_all_questions)]
+    result_data = pd.concat([filtered_data, new_rows_df], ignore_index=True)
+
+    return result_data
+
+
+def scale(data, variables, na=False, method='sum'):
+    df = data[['person_id'] + variables]
+    if na:
+        df['valid_count'] = df[variables].apply(lambda x: x[x >= 0].count(), axis=1)
+        min_valid_count = len(variables) * 0.8
+        df = df[df['valid_count'] >= min_valid_count]
+    else:
+        df = df.dropna(subset=variables)
+        df = df[(df[variables] >= 0).all(axis=1)]
+
+    if method == 'mean':
+        df['score'] = df[variables].mean(axis=1)
+        df['score'] = df[variables].sum(axis=1)
+
+    data = pd.merge(data, df[['person_id', 'score']], on='person_id', how='left')
+
+    print('Minimum score calculated:', df['score'].min())
+    print('Maximum score calculated:', df['score'].max())
+    print('Number of person_ids with NaN assigned:', data['score'].isna().sum())
+    print('Number of person_ids with score calculated:', data['score'].notna().sum())
 
     return data
+

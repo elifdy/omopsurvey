@@ -63,7 +63,6 @@ def print_codebook(source):
 
         codebook_df = create_codebook(data)
 
-
         from tabulate import tabulate
         print(tabulate(codebook_df, headers='keys', tablefmt='psql', showindex=False))
     except ImportError:
@@ -73,7 +72,7 @@ def print_codebook(source):
         print(f"Error: {e}")
 
 
-def create_formatted_codebook(dataframe):
+def codebook(dataframe):
 
     dataframe['question'] = dataframe['question'].str.strip().str.lower()
     dataframe['answer'] = dataframe['answer'].str.strip().str.lower()

@@ -72,7 +72,7 @@ def print_codebook(source):
         print(f"Error: {e}")
 
 
-def create_formatted_codebook(dataframe):
+def codebook(dataframe):
 
     dataframe['question'] = dataframe['question'].str.strip().str.lower()
     dataframe['answer'] = dataframe['answer'].str.strip().str.lower()

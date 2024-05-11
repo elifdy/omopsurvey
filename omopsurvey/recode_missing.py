@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def recode_missing_values(input_data):
+def recode(input_data):
     missing_values = [-999, -998, -997, -996, -995, -994, -993, -992, -991, -990,
                       -989, -988, -987, -986, -985, -984, -983, -982, -981, -980]
 

@@ -10,7 +10,7 @@ def pivot_text(data, file_name='pivot_t.csv'):
                                 aggfunc='first')
 
     pivot_df.columns = ['q' + str(col) for col in pivot_df.columns]
-    pivot_df.to_csv(file_name, index=False)
+    pivot_df.to_csv(file_name)
     my_bucket = os.getenv('WORKSPACE_BUCKET')
     args = ["gsutil", "cp", f"./{file_name}", f"{my_bucket}/data/"]
     output = subprocess.run(args, capture_output=True)
@@ -27,7 +27,7 @@ def pivot(data, file_name='pivot_n.csv'):
                                 aggfunc='first')
 
     pivot_df.columns = ['q' + str(col) for col in pivot_df.columns]
-    pivot_df.to_csv(file_name, index=False)
+    pivot_df.to_csv(file_name)
     my_bucket = os.getenv('WORKSPACE_BUCKET')
     args = ["gsutil", "cp", f"./{file_name}", f"{my_bucket}/data/"]
     output = subprocess.run(args, capture_output=True)

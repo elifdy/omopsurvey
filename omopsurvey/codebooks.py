@@ -1,4 +1,6 @@
 import pandas as pd
+from IPython.display import display, FileLink
+import os
 
 
 def load_data(source):
@@ -17,19 +19,19 @@ def load_data(source):
         raise TypeError("Input source must be a pandas DataFrame or a filepath as a string.")
 
 
-def create_codebook(dataframe):
+def create_codebook(input_data):
 
     required_columns = ['question_concept_id', 'question']
     response_columns = ['answer_concept_id', 'answer', 'answer_text', 'answer_numeric']
 
-    response_columns = [col for col in response_columns if col in dataframe.columns]
+    response_columns = [col for col in response_columns if col in input_data.columns]
 
-    if not all(col in dataframe.columns for col in required_columns):
+    if not all(col in input_data.columns for col in required_columns):
         raise ValueError("Dataframe must contain the necessary columns: 'question_concept_id' and 'question'.")
 
-    dataframe['question_concept_id'] = dataframe['question_concept_id'].astype(str)
+    input_data['question_concept_id'] = input_data['question_concept_id'].astype(str)
 
-    grouped = dataframe.groupby(required_columns).apply(
+    grouped = input_data.groupby(required_columns).apply(
         lambda x: x[response_columns].drop_duplicates().reset_index(drop=True)
     )
 
@@ -72,14 +74,14 @@ def print_codebook(source):
         print(f"Error: {e}")
 
 
-def codebook(dataframe):
+def codebook(input_data):
 
-    dataframe['question'] = dataframe['question'].str.strip().str.lower()
-    dataframe['answer'] = dataframe['answer'].str.strip().str.lower()
+    input_data['question'] = input_data['question'].str.strip().str.lower()
+    input_data['answer'] = input_data['answer'].str.strip().str.lower()
 
-    dataframe = dataframe.drop_duplicates(subset=['question_concept_id', 'question', 'answer_concept_id'])
+    input_data = input_data.drop_duplicates(subset=['question_concept_id', 'question', 'answer_concept_id'])
 
-    grouped = dataframe.groupby(['question_concept_id', 'question'], sort=False)
+    grouped = input_data.groupby(['question_concept_id', 'question'], sort=False)
 
     formatted_data = []
 
@@ -109,4 +111,9 @@ def codebook(dataframe):
 
     formatted_codebook_df = pd.DataFrame(formatted_data)
 
-    return formatted_codebook_df.to_html(index=False, escape=False)
+    file_name = 'codebook.html'
+    file_path = os.path.join(os.getcwd(), file_name)
+    with open(file_path, 'w') as f:
+        f.write(formatted_codebook_df.to_html(index=False, escape=False))
+
+    return display(FileLink(file_path))

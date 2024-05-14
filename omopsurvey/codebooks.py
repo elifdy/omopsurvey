@@ -1,7 +1,7 @@
 import pandas as pd
-from IPython.display import display, FileLink
+from IPython.display import display, FileLink, HTML
 import os
-
+from datetime import datetime
 
 def load_data(source):
     if isinstance(source, pd.DataFrame):
@@ -110,10 +110,16 @@ def codebook(input_data):
                 })
 
     formatted_codebook_df = pd.DataFrame(formatted_data)
+    display(HTML(formatted_codebook_df))
 
-    file_name = 'codebook.html'
+    current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    file_name = f'codebook_{current_time}.html'
     file_path = os.path.join(os.getcwd(), file_name)
+    temp = formatted_codebook_df.to_html(index=False, escape=False)
     with open(file_path, 'w') as f:
-        f.write(formatted_codebook_df.to_html(index=False, escape=False))
+        f.write(temp)
+    display(FileLink(file_path))
+    display(HTML(temp))
 
-    return display(FileLink(file_path))
+    return

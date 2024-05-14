@@ -35,3 +35,4 @@ def pivot(data, file_name='pivot_n.csv'):
         print(f"Pivoted dataset with text values saved and uploaded successfully to: {my_bucket}/data/{file_name}")
     else:
         print("Failed to upload the file:", output.stderr.decode())
+
